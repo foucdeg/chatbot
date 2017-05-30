@@ -1,6 +1,8 @@
 var chatService = require('../server/chatService');
+var userService = require('../server/userService');
 var authenticate = chatService.authenticate;
 var sendTextMessage = chatService.sendTextMessage;
+var request = require('request-promise');
 
 var express = require('express');
 var router = express.Router();
@@ -15,7 +17,7 @@ router.get('/', function(req, res, next) {
   }
 });
 
-router.post('/', function (req, res) {
+router.post('/', function (req, res, next) {
   var data = req.body;
 
   if (data.object === 'page') {
@@ -23,8 +25,25 @@ router.post('/', function (req, res) {
     data.entry.forEach(function(entry) {
 
       entry.messaging.forEach(function(event) {
+        var senderId = event.sender.id;
         if (event.message) {
-          sendTextMessage(event.sender.id, event.message.text);
+          if (userService.isUserKnown(senderId)) {
+            sendTextMessage(senderId, event.message.text);
+          }
+          else {
+            request(
+              'https://graph.facebook.com/v2.6/' + senderId +
+              '?fields=first_name&access_token='
+              + process.env.MESSENGER_PAGE_ACCESS_TOKEN
+            ).then(function(result) {
+              var senderName = JSON.parse(result).first_name;
+              sendTextMessage(senderId, 'Welcome, ' + senderName);
+              userService.addUser(senderId, { name: senderName });
+            })
+            .catch(function(err) {
+              console.error("Facebook API error: ", err);
+            });
+          }
         } else {
           console.log("Webhook received unknown event: ", event);
         }
