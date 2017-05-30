@@ -1,0 +1,7 @@
+{
+  "serverUrl": "<insert your server url here>",
+  "weatherApiToken": "<insert your weather api token here>",
+  "googleApiToken": "<insert your google geolocalisation api token here>",
+  "pageAccessToken": "<insert your facebook page token here>",
+  "validationToken": "<insert your facebook validation token here>"
+}
