@@ -3,6 +3,7 @@ var userService = require('../server/userService');
 var authenticate = chatService.authenticate;
 var sendTextMessage = chatService.sendTextMessage;
 var request = require('request-promise');
+var exec = require('child_process').exec;
 
 var express = require('express');
 var router = express.Router();
@@ -28,7 +29,12 @@ router.post('/', function (req, res, next) {
         var senderId = event.sender.id;
         if (event.message) {
           if (userService.isUserKnown(senderId)) {
-            sendTextMessage(senderId, event.message.text);
+            if (event.message.text == parseInt(event.message.text)) {
+              exec("../node_modules/foodcommander/bin/foodcom store -p " + event.message.text, function(error, stdout, stderr) {
+                sendTextMessage(senderId, stdout)
+              });
+            }
+            else sendTextMessage(senderId, event.message.text);
           }
           else {
             request(
