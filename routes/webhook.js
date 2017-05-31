@@ -31,6 +31,7 @@ router.post('/', function (req, res, next) {
           if (userService.isUserKnown(senderId)) {
             if (event.message.text == parseInt(event.message.text)) {
               exec("../node_modules/foodcommander/bin/foodcom store -p " + event.message.text, function(error, stdout, stderr) {
+                console.log(stdout);
                 sendTextMessage(senderId, stdout)
               });
             }
