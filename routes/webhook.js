@@ -28,10 +28,13 @@ router.post('/', function (req, res, next) {
       entry.messaging.forEach(function(event) {
         var senderId = event.sender.id;
         if (event.message) {
+
           if (userService.isUserKnown(senderId)) {
-            if (event.message.text == parseInt(event.message.text)) {
-              exec("../node_modules/foodcommander/bin/foodcom store -p " + event.message.text, function(error, stdout, stderr) {
-                console.log(stdout);
+            var text = event.message.text;
+            if (text == parseInt(text)) {
+              console.error('numero du store : ', text)
+              exec("../node_modules/foodcommander/bin/foodcom store -p " + text, function(error, stdout, stderr) {
+                console.error(stdout);
                 sendTextMessage(senderId, stdout)
               });
             }
